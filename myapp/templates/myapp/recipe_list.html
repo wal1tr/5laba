@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список рецептов</title>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#search-input').on('keyup', function() {
+                var query = $(this).val();
+                $.ajax({
+                    url: '{% url "myapp:ajax_search" %}',
+                    data: { 'q': query },
+                    success: function(data) {
+                        $('#results').empty();
+                        if (data.recipes.length > 0) {
+                            $.each(data.recipes, function(index, recipe) {
+                                $('#results').append('<li>' + recipe.name + '</li>');
+                            });
+                        } else {
+                            $('#results').append('<li>Ничего не найдено.</li>');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Список рецептов</h1>
+
+        <!-- Кнопки для фильтрации рецептов по источникам -->
+        <nav>
+            <a href="{% url 'myapp:recipe_list' %}">Все рецепты</a> |
+            <a href="{% url 'myapp:recipe_list' %}?source=db" {% if source == 'db' %}class="active"{% endif %}>Список рецептов из БД</a> |
+            <a href="{% url 'myapp:recipe_list' %}?source=xml" {% if source == 'xml' %}class="active"{% endif %}>Список рецептов из XML</a>
+        </nav>
+
+        <!-- Поиск -->
+        <input type="text" id="search-input" placeholder="Поиск по рецепту...">
+        <ul id="results"></ul>
+
+        <!-- Список рецептов -->
+        <h2>Рецепты</h2>
+        <ul>
+            {% for recipe in recipes %}
+                <li>
+                    <h3>{{ recipe.name }}</h3>
+                    <p><strong>Ингредиенты:</strong> {{ recipe.ingredients }}</p>
+                    <p><strong>Описание:</strong> {{ recipe.description }}</p>
+                    
+                    <!-- Указание источника данных -->
+                    {% if recipe.source == "db" %}
+                        <span>Источник: База данных</span>
+                    {% elif recipe.source == "xml" %}
+                        <span>Источник: XML файл</span>
+                    {% endif %}
+
+                    <!-- Проверяем, есть ли pk для редактирования/удаления -->
+                    {% if recipe.pk %}
+                        <a href="{% url 'myapp:edit_recipe' recipe.pk %}">Редактировать</a> |
+                        <a href="{% url 'myapp:delete_recipe' recipe.pk %}" onclick="return confirm('Вы уверены?')">Удалить</a>
+                    {% else %}
+                        <span>Невозможно редактировать или удалить</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Добавление нового рецепта -->
+        <nav>
+            <a href="{% url 'myapp:recipe_form' %}">Добавить рецепт</a> |
+            <a href="{% url 'myapp:upload_file' %}">Загрузить файл</a> |
+            <a href="{% url 'myapp:download_recipes_xml' %}">Скачать все рецепты в XML</a>
+        </nav>
+    </div>
+</body>
+</html>

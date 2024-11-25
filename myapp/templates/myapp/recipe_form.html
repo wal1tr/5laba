@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if recipe %}Редактировать{% else %}Добавить{% endif %} рецепт</title>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>{% if recipe %}Редактировать{% else %}Добавить{% endif %} рецепт</h1>
+        <form action="{% if recipe %}{% url 'myapp:edit_recipe' recipe.pk %}{% else %}{% url 'myapp:recipe_form' %}{% endif %}" method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="error">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <label for="name">Название рецепта:</label>
+            {{ form.name }}  
+
+            <label for="ingredients">Ингредиенты:</label>
+            {{ form.ingredients }}
+
+            <label for="description">Инструкции:</label>
+            {{ form.description }}
+
+            <label for="save_choice">Сохранить в:</label>
+            {{ form.save_choice }}
+
+            <button type="submit">{% if recipe %}Сохранить изменения{% else %}Добавить рецепт{% endif %}</button>
+        </form>
+    </div>
+</body>
+</html>

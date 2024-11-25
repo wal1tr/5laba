@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка файла</title>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Загрузить файл рецептов</h1>
+        <form action="{% url 'myapp:upload_file' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="file">Выберите файл:</label>
+            <input type="file" name="file" accept=".xml">
+            <button type="submit">Загрузить</button>
+        </form>
+    </div>
+</body>
+</html>
